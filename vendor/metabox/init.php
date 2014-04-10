@@ -7,7 +7,7 @@ Contributors: WebDevStudios (@webdevstudios / webdevstudios.com)
               Bill Erickson (@billerickson / billerickson.net)
               Andrew Norcross (@norcross / andrewnorcross.com)
 Description:  This will create metaboxes with custom fields that will blow your mind.
-Version:      1.1.2
+Version:      1.1.3
 */
 
 /**
@@ -55,7 +55,7 @@ class cmb_Meta_Box {
 	 * @var   string
 	 * @since 1.0.0
 	 */
-	const CMB_VERSION = '1.1.2';
+	const CMB_VERSION = '1.1.3';
 
 	/**
 	 * Metabox Config array
@@ -996,7 +996,7 @@ class cmb_Meta_Box {
 	 * @param  string  $img_url Attachment url
 	 * @return mixed            Attachment ID or false
 	 */
-	public function image_id_from_url( $img_url ) {
+	public static function image_id_from_url( $img_url ) {
 		global $wpdb;
 
 		$img_url = esc_url_raw( $img_url );
@@ -1056,11 +1056,11 @@ function cmb_get_field( $field_args, $object_id = 0, $object_type = 'post' ) {
  * @since  1.1.0
  * @param  array  $field_args  Field arguments
  * @param  int    $object_id   Object ID
- * @param  string $object_type Type of object being saved. (e.g., post, user, or comment)
+ * @param  string $object_type Type of object being saved. (e.g., post, user, comment, or options-page)
  * @return mixed               Maybe escaped value
  */
 function cmb_get_field_value( $field_args, $object_id = 0, $object_type = 'post' ) {
-	$field = cmb_get_field( $object_id, $field_args, $object_type );
+	$field = cmb_get_field( $field_args, $object_id, $object_type );
 	return $field->escaped_value();
 }
 
