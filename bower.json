@@ -1,0 +1,26 @@
+{
+	"name": "wp-vcard-manager",
+	"version": "0.0.2",
+	"authors": [
+		"Simon Lepel <hallo@simonlepel.de>"
+	],
+	"homepage": "https://github.com/simbo/wp-vcard-manager",
+	"description": "A WordPress plugin for managing and generating vcards, hcards and corresponding qrcode images.",
+	"license": "GPL",
+	"private": true,
+	"ignore": [
+		"node_modules",
+		"bower_components",
+		".DS_Store?",
+		"._*",
+		".Spotlight-V100",
+		".Trashes",
+		"ehthumbs.db",
+		"Thumbs.db"
+	],
+	"devDependencies": {
+		"Custom-Metaboxes-and-Fields-for-WordPress": "WebDevStudios/Custom-Metaboxes-and-Fields-for-WordPress#latest",
+		"QrCode": "endroid/QrCode#latest",
+		"phpqrcode": "t0k4rt/phpqrcode"
+	}
+}

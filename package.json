@@ -1,0 +1,32 @@
+{
+  "name": "wp-vcard-manager",
+  "version": "0.0.2",
+  "description": "A WordPress plugin for managing and generating vcards, hcards and corresponding qrcode images.",
+  "homepage": "https://github.com/simbo/wp-vcard-manager",
+  "keywords": [
+  ],
+  "author": {
+    "name": "Simon Lepel",
+    "email": "hallo@simonlepel.de",
+    "url": "http://simonlepel.de/"
+  },
+  "license": {
+    "type": "GPL"
+  },
+  "devDependencies": {
+    "grunt": "*",
+    "load-grunt-tasks": "*",
+    "grunt-contrib-clean": "*",
+    "grunt-contrib-copy": "*",
+    "grunt-update-json": "*",
+    "grunt-contrib-less": "*",
+    "grunt-autoprefixer": "*",
+    "grunt-contrib-csslint": "*",
+    "grunt-contrib-coffee": "*",
+    "grunt-contrib-jshint": "*",
+    "grunt-contrib-uglify": "*",
+    "grunt-contrib-watch": "*",
+    "grunt-notify": "*",
+    "bower": "*"
+  }
+}

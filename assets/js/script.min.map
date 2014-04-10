@@ -1,0 +1,1 @@
+{"version":3,"file":"script.min.js","sources":["script.js"],"names":["$","document","on","ready","find","click","ev","confirm","VCRDMNGR_CONFIRMATION","preventDefault","stopPropagation","jQuery"],"mappings":"CAAA,SAAUA,GACR,YACAA,GAAEC,UAAUC,IACVC,MAAO,WACLH,EAAE,oBAAoBI,KAAK,qBAAqBF,IAC9CG,MAAO,SAASC,GACTC,QAAQC,yBACXF,EAAGG,iBACHH,EAAGI,0BAMZC"}
