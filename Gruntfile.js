@@ -107,7 +107,7 @@ module.exports = function(grunt) {
                 strictImports: true,
                 outputSourceFiles: true,
                 report: 'min',
-                compress: false
+                compress: true
             },
             styles: {
                 options: {

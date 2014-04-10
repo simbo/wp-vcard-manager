@@ -1,0 +1,361 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: wp-vcard-manager\n"
+"POT-Creation-Date: 2014-04-10 21:20+0100\n"
+"PO-Revision-Date: 2014-04-10 21:27+0100\n"
+"Last-Translator: Simon Lepel <simbo@simbo.de>\n"
+"Language-Team: Simon Lepel <simbo@simbo.de>\n"
+"Language: de_DE\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.6.4\n"
+"X-Poedit-Basepath: .\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;_x\n"
+"X-Poedit-SearchPath-0: ../src\n"
+
+#: ../src/class-wp-vcard-manager.php:88
+msgid "Are you sure you want to remove this element?"
+msgstr "Bist du sicher, dass du dieses Element löschen möchtest?"
+
+#: ../src/class-wp-vcard-manager.php:162 ../src/class-wp-vcard-manager.php:173
+msgid "vCards"
+msgstr "vCards"
+
+#: ../src/class-wp-vcard-manager.php:163 ../src/class-wp-vcard-manager.php:473
+#: ../src/class-wp-vcard-manager.php:867
+msgid "vCard"
+msgstr "vCard"
+
+#: ../src/class-wp-vcard-manager.php:164
+msgid "Add New"
+msgstr "Neu"
+
+#: ../src/class-wp-vcard-manager.php:165
+msgid "Add New vCard"
+msgstr "vCard hinzufügen"
+
+#: ../src/class-wp-vcard-manager.php:166
+msgid "Edit vCard"
+msgstr "vCard bearbeiten"
+
+#: ../src/class-wp-vcard-manager.php:167
+msgid "New vCard"
+msgstr "Neue vCard"
+
+#: ../src/class-wp-vcard-manager.php:168
+msgid "All vCards"
+msgstr "Alle vCards"
+
+#: ../src/class-wp-vcard-manager.php:169
+msgid "View vCard"
+msgstr "vCard anzeigen"
+
+#: ../src/class-wp-vcard-manager.php:170
+msgid "Search vCards"
+msgstr "vCards durchsuchen"
+
+#: ../src/class-wp-vcard-manager.php:171
+msgid "No vCards found"
+msgstr "Keine vCards gefunden"
+
+#: ../src/class-wp-vcard-manager.php:172
+msgid "No vCards found in trash"
+msgstr "Keine vCards im Papierkorb gefunden"
+
+#: ../src/class-wp-vcard-manager.php:198
+msgid "vCard Properties"
+msgstr "vCard Eigenschaften"
+
+#: ../src/class-wp-vcard-manager.php:206
+msgid "Full Name"
+msgstr "Vollständiger Name"
+
+#: ../src/class-wp-vcard-manager.php:207
+msgid "The person's full name, defaults to vCard title"
+msgstr "Der vollständige Name der Person, leer lassen für vCard Titel"
+
+#: ../src/class-wp-vcard-manager.php:212
+msgid "Given Name"
+msgstr "Vorname"
+
+#: ../src/class-wp-vcard-manager.php:213
+msgid "The person's first name"
+msgstr "Der Vorname der Person"
+
+#: ../src/class-wp-vcard-manager.php:218
+msgid "Additional Name"
+msgstr "Zusatzname"
+
+#: ../src/class-wp-vcard-manager.php:219
+msgid "The person's middle or second name"
+msgstr "Der mittlere Name oder zweiter Vorname der Person"
+
+#: ../src/class-wp-vcard-manager.php:224
+msgid "Family Name"
+msgstr "Nachname"
+
+#: ../src/class-wp-vcard-manager.php:225
+msgid "The person's last name"
+msgstr "Der Nachname oder Familienname der Person"
+
+#: ../src/class-wp-vcard-manager.php:230
+msgid "Prefix"
+msgstr "Präfix"
+
+#: ../src/class-wp-vcard-manager.php:231
+msgid "Honorific prefixes"
+msgstr "Ehrende Präfixe"
+
+#: ../src/class-wp-vcard-manager.php:236
+msgid "Suffix"
+msgstr "Suffix"
+
+#: ../src/class-wp-vcard-manager.php:237
+msgid "Honorific suffixes"
+msgstr "Ehrende Suffixe"
+
+#: ../src/class-wp-vcard-manager.php:242
+msgid "Nickname"
+msgstr "Spitzname"
+
+#: ../src/class-wp-vcard-manager.php:243
+msgid "The person's nickname or nicknames, comma-separated"
+msgstr "Der oder die Spitznamen der Person, durch Kommata getrennt"
+
+#: ../src/class-wp-vcard-manager.php:248
+msgid "Photo"
+msgstr "Foto"
+
+#: ../src/class-wp-vcard-manager.php:249
+msgid "A photo of the person"
+msgstr "Ein Foto der Person"
+
+#: ../src/class-wp-vcard-manager.php:254
+msgid "URL"
+msgstr "URL"
+
+#: ../src/class-wp-vcard-manager.php:255
+msgid "A profile or homepage URL"
+msgstr "Eine Profil- oder Homepage-URL"
+
+#: ../src/class-wp-vcard-manager.php:260
+msgid "PGP Key"
+msgstr "PGP Schlüssel"
+
+#: ../src/class-wp-vcard-manager.php:261
+msgid "corresponding PGP/GnuPG public key URL"
+msgstr "URL des zugehörigen öffentlicheb PGP/GnuPG Schlüssels"
+
+#: ../src/class-wp-vcard-manager.php:266
+msgid "Organization"
+msgstr "Organisation"
+
+#: ../src/class-wp-vcard-manager.php:267
+msgid "Company or Organization"
+msgstr "Unternehmen oder Organisation"
+
+#: ../src/class-wp-vcard-manager.php:272
+msgid "Title"
+msgstr "Titel"
+
+#: ../src/class-wp-vcard-manager.php:273
+msgid "The person's job title within the organization"
+msgstr "Titel der Person innerhalb der Organisation"
+
+#: ../src/class-wp-vcard-manager.php:278
+msgid "Role"
+msgstr "Rolle"
+
+#: ../src/class-wp-vcard-manager.php:279
+msgid "The person's role within the organization"
+msgstr "Rolle der Person innerhalb der Organisation"
+
+#: ../src/class-wp-vcard-manager.php:284
+msgid "Logo"
+msgstr "Logo"
+
+#: ../src/class-wp-vcard-manager.php:285
+msgid "The organization logo"
+msgstr "Logo der Organisation"
+
+#: ../src/class-wp-vcard-manager.php:290
+msgid "Source"
+msgstr "Quelle"
+
+#: ../src/class-wp-vcard-manager.php:291
+msgid "Source URL to vcard, defaults to vCard URL in uploads folder"
+msgstr "Quell-URL der vCard, leer lassen für vCard URL im Uploads-Ordner"
+
+#: ../src/class-wp-vcard-manager.php:298
+msgid "E-Mail addresses"
+msgstr "E-Mailadressen"
+
+#: ../src/class-wp-vcard-manager.php:300
+msgid "Add E-Mail"
+msgstr "E-Mail hinzufügen"
+
+#: ../src/class-wp-vcard-manager.php:301
+msgid "Remove E-Mail"
+msgstr "E-Mail entfernen"
+
+#: ../src/class-wp-vcard-manager.php:306 ../src/class-wp-vcard-manager.php:334
+#: ../src/class-wp-vcard-manager.php:365
+msgid "Type"
+msgstr "Typ"
+
+#: ../src/class-wp-vcard-manager.php:311 ../src/class-wp-vcard-manager.php:339
+#: ../src/class-wp-vcard-manager.php:370
+msgid "Home"
+msgstr "Privat"
+
+#: ../src/class-wp-vcard-manager.php:312 ../src/class-wp-vcard-manager.php:340
+#: ../src/class-wp-vcard-manager.php:371
+msgid "Work"
+msgstr "Arbeit"
+
+#: ../src/class-wp-vcard-manager.php:317
+msgid "E-Mail"
+msgstr "E-Mail"
+
+#: ../src/class-wp-vcard-manager.php:326
+msgid "Phone Numbers"
+msgstr "Telefonnummern"
+
+#: ../src/class-wp-vcard-manager.php:328
+msgid "Add Number"
+msgstr "Nummer hinzufügen"
+
+#: ../src/class-wp-vcard-manager.php:329
+msgid "Remove Number"
+msgstr "Nummer entfernen"
+
+#: ../src/class-wp-vcard-manager.php:341
+msgid "Mobile"
+msgstr "Mobil"
+
+#: ../src/class-wp-vcard-manager.php:342
+msgid "Voice"
+msgstr "Voice"
+
+#: ../src/class-wp-vcard-manager.php:343
+msgid "Fax"
+msgstr "Fax"
+
+#: ../src/class-wp-vcard-manager.php:348
+msgid "Number"
+msgstr "Nummer"
+
+#: ../src/class-wp-vcard-manager.php:357
+msgid "Addresses"
+msgstr "Adressen"
+
+#: ../src/class-wp-vcard-manager.php:359
+msgid "Add Address"
+msgstr "Adresse hinzufügen"
+
+#: ../src/class-wp-vcard-manager.php:360
+msgid "Remove Address"
+msgstr "Adresse entfernen"
+
+#: ../src/class-wp-vcard-manager.php:372
+msgid "Domestic"
+msgstr "Domizil"
+
+#: ../src/class-wp-vcard-manager.php:373
+msgid "International"
+msgstr "Inernational"
+
+#: ../src/class-wp-vcard-manager.php:374
+msgid "Postal"
+msgstr "Postanschrift"
+
+#: ../src/class-wp-vcard-manager.php:375
+msgid "Parcel"
+msgstr "Lieferanschrift"
+
+#: ../src/class-wp-vcard-manager.php:380
+msgid "P.O. box"
+msgstr "Postfach"
+
+#: ../src/class-wp-vcard-manager.php:385
+msgid "Street"
+msgstr "Straße"
+
+#: ../src/class-wp-vcard-manager.php:390
+msgid "Extended"
+msgstr "Erweitert"
+
+#: ../src/class-wp-vcard-manager.php:395
+msgid "Locality"
+msgstr "Ort"
+
+#: ../src/class-wp-vcard-manager.php:400
+msgid "Postal Code"
+msgstr "Postleitzahl"
+
+#: ../src/class-wp-vcard-manager.php:405
+msgid "Region"
+msgstr "Region"
+
+#: ../src/class-wp-vcard-manager.php:410
+msgid "Country"
+msgstr "Land"
+
+#: ../src/class-wp-vcard-manager.php:415
+msgid "Formatted"
+msgstr "Formatiert"
+
+#: ../src/class-wp-vcard-manager.php:425
+msgid "Output"
+msgstr "Ausgabe"
+
+#: ../src/class-wp-vcard-manager.php:433
+msgid "Attachments"
+msgstr "Anhänge"
+
+#: ../src/class-wp-vcard-manager.php:434
+msgid "Data and files will be generated on save."
+msgstr "Daten und Dateien werden beim Speichern generiert"
+
+#: ../src/class-wp-vcard-manager.php:482
+msgid "hCard"
+msgstr "hCard"
+
+#: ../src/class-wp-vcard-manager.php:493
+msgid "hCard HTML"
+msgstr "hCard HTML"
+
+#: ../src/class-wp-vcard-manager.php:497
+msgid "vCard Link"
+msgstr "vCard Link"
+
+#: ../src/class-wp-vcard-manager.php:501
+msgid "vCard URL"
+msgstr "vCard URL"
+
+#: ../src/class-wp-vcard-manager.php:505
+msgid "QRCode Image"
+msgstr "QRCode Bild"
+
+#: ../src/class-wp-vcard-manager.php:509
+msgid "QRCode URL"
+msgstr "QRCode URL"
+
+#: ../src/class-wp-vcard-manager.php:513
+msgid "QRCode white"
+msgstr "QRCode weiß"
+
+#: ../src/class-wp-vcard-manager.php:517
+msgid "QRCode black"
+msgstr "QRCode schwarz"
+
+#: ../src/class-wp-vcard-manager.php:680
+msgid "PGP Public Key"
+msgstr "PGP Public Key"
+
+#, fuzzy
+#~ msgid "Phone"
+#~ msgstr "Telefonnummern"

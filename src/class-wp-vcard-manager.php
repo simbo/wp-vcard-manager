@@ -8,7 +8,8 @@ class WPvCardManager {
               $path,        // /full/path/to/wp-content/plugins/plugin-dir/
               $url,         // full URL to plugin dir
               $upload_url,  // URL of vcard uploads folder
-              $upload_dir;  // path to vcard uploads folder
+              $upload_dir,  // path to vcard uploads folder
+              $i18n_dir;    // internationalization directory
 
     private static $instance = null; // main instance of plugin class
 
@@ -19,25 +20,29 @@ class WPvCardManager {
     }
 
     private function __construct( $file ) {
-
-        // retrieve wp plugin data
+        // retrieve wp plugin data values
         $plugin_data = get_file_data( $file, array(
             'Version'    => 'Version',
             'TextDomain' => 'Text Domain'
         ));
-
         // plugin properties
-        $this->file    = $file;
-        $this->prefix  = $plugin_data['TextDomain'];
-        $this->version = $plugin_data['Version'];
-        $this->path    = plugin_dir_path($file);
-        $this->url     = plugin_dir_url($file);
-
+        $this->file     = $file;
+        $this->prefix   = $plugin_data['TextDomain'];
+        $this->version  = $plugin_data['Version'];
+        $this->path     = plugin_dir_path($file);
+        $this->url      = plugin_dir_url($file);
+        $this->i18n_dir = dirname(plugin_basename($file)).'/lang/';
         // upload properties
         $wp_upload_dir = wp_upload_dir();
         $this->upload_url = $wp_upload_dir['baseurl'].'/vcards';;
         $this->upload_dir = $wp_upload_dir['basedir'].'/vcards';
+        // hook initialization
+        add_action( 'plugins_loaded', array($this,'init') );
+    }
 
+    public function init() {
+        // i18n
+        load_plugin_textdomain( $this->prefix, false, $this->i18n_dir );
         // hook posttype setups
         add_action( 'init', array($this,'register_posttypes') );
         // hook admin scripts and styles
@@ -52,15 +57,14 @@ class WPvCardManager {
         // hook into save_post
         add_action('save_post', array($this,'save_post') );
         // hook plugin activation / deactivation
-        register_activation_hook( $file, array($this,'activate') );
-        register_deactivation_hook( $file, array($this,'deactivate') );
+        register_activation_hook( $this->file, array($this,'activate') );
+        register_deactivation_hook( $this->file, array($this,'deactivate') );
         // register shortcodes
         add_shortcode( 'hcard', array($this,'shortcode_hcard') );
         add_shortcode( 'vcard_url', array($this,'shortcode_vcard_url') );
         add_shortcode( 'vcard_link', array($this,'shortcode_vcard_link') );
         add_shortcode( 'qrcode_url', array($this,'shortcode_qrcode_url') );
         add_shortcode( 'qrcode_img', array($this,'shortcode_qrcode_img') );
-
     }
 
     // on plugin activation
@@ -80,9 +84,9 @@ class WPvCardManager {
         wp_register_script( $this->prefix.'_script', $this->url.'assets/js/script.min.js', false, $this->version );
         wp_enqueue_script( $this->prefix.'_script' );
         // translated strings for javascript
-        echo '<script>var VCRDMNGR_CONFIRMATION = \''.
-            __('Are you sure you want to remove this element?\nOnce deleted, there is no way to restore it.',$this->prefix).
-            '\';</script>';
+        wp_localize_script( $this->prefix.'_script', $this->prefix.'_i18n', array(
+            'confirm_remove_element' => __('Are you sure you want to remove this element?',$this->prefix),
+        ) );
     }
 
     // hook into save_post
@@ -155,9 +159,9 @@ class WPvCardManager {
     // register custom post types
     public function register_posttypes() {
         $vcard_labels = array(
-            'name'               => _x( 'vCards', 'post type general name', $this->prefix ),
-            'singular_name'      => _x( 'vCard', 'post type singular name', $this->prefix ),
-            'add_new'            => _x( 'Add New', 'book', $this->prefix ),
+            'name'               => __( 'vCards', $this->prefix ),
+            'singular_name'      => __( 'vCard', $this->prefix ),
+            'add_new'            => __( 'Add New', $this->prefix ),
             'add_new_item'       => __( 'Add New vCard', $this->prefix ),
             'edit_item'          => __( 'Edit vCard', $this->prefix ),
             'new_item'           => __( 'New vCard', $this->prefix ),
@@ -341,7 +345,7 @@ class WPvCardManager {
                             'inline'  => true,
                         ),
                         array(
-                            'name' => __( 'Phone', $this->prefix ),
+                            'name' => __( 'Number', $this->prefix ),
                             'id'   => 'value',
                             'type' => 'text',
                         ),
