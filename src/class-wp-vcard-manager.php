@@ -131,8 +131,12 @@ class WPvCardManager {
                     $vcard_text = $this->get_vcard($post);
                     // write vcard to file
                     file_put_contents($filename.'.vcf',$vcard_text);
+                    // get qrcode size
+                    $qrcode_size = get_post_meta( $post->ID, '_'.$this->prefix.'_qrcode_size', true );
+                    $qrcode_size = intval( empty($qrcode_size) ? 3 : $qrcode_size );
+                    $qrcode_size = min(10,max(1,$qrcode_size));
                     // write qrcode image file from vcard data
-                    QRcode::png( $vcard_text, $filename.'.png', QR_ECLEVEL_L, 3, 0 );
+                    QRcode::png( $vcard_text, $filename.'.png', QR_ECLEVEL_L, $qrcode_size, 0 );
                     // read qrcode image
                     if( $img = imagecreatefrompng($filename.'.png') ) {
                         // get dimensions
@@ -430,12 +434,19 @@ class WPvCardManager {
             'cmb_styles' => true,
             'fields'     => array(
                 array(
-                    'name' => __( 'Attachments', $this->prefix ),
+                    'name' => __( 'Output', $this->prefix ),
                     'description' => __( 'Data and files will be generated on save.', $this->prefix ),
                     'id'   => $prefix.'_attachments',
                     'type' => 'vcard_attachments',
                 ),
-            ),
+                array(
+                    'name' => __( 'QRCode square size', $this->prefix ),
+                    'desc' => __( 'Pixel size of squares/dots in QRCode image', $this->prefix ),
+                    'default' => '3',
+                    'id'   => $prefix . '_qrcode_size',
+                    'type' => 'text_small'
+                )
+            )
         );
         return $metaboxes;
     }
