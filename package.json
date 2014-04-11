@@ -1,6 +1,6 @@
 {
   "name": "wp-vcard-manager",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A WordPress plugin for managing and generating vcards, hcards and corresponding qrcode images.",
   "homepage": "https://github.com/simbo/wp-vcard-manager",
   "keywords": [
