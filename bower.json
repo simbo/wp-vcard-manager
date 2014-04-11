@@ -20,7 +20,7 @@
 	],
 	"devDependencies": {
 		"Custom-Metaboxes-and-Fields-for-WordPress": "WebDevStudios/Custom-Metaboxes-and-Fields-for-WordPress#latest",
-		"QrCode": "endroid/QrCode#latest",
+		"plugin-update-checker": "YahnisElsts/plugin-update-checker",
 		"phpqrcode": "t0k4rt/phpqrcode"
 	}
 }

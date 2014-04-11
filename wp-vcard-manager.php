@@ -16,6 +16,9 @@ if( !defined('ABSPATH') )
 if( !class_exists('QRcode') )
     require_once 'vendor/qrcode/qrlib.php';
 
+require_once 'vendor/plugin-update-checker/plugin-update-checker.php';
+PucFactory::buildUpdateChecker('https://raw.githubusercontent.com/simbo/wp-vcard-manager/master/wp-plugin.json',__FILE__,'vcrdmngr');
+
 if( !class_exists('WPvCardManager') ) {
     require_once 'src/class-wp-vcard-manager.php';
     WPvCardManager::_(__FILE__);

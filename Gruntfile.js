@@ -55,6 +55,16 @@ module.exports = function(grunt) {
                 dest: 'vendor/metabox/'
             },
 
+            // plugin update checker
+            dep_updatechecker: {
+                expand: true,
+                cwd: 'bower_components/plugin-update-checker/',
+                src: [
+                    '**/*'
+                ],
+                dest: 'vendor/plugin-update-checker/'
+            },
+
             // phpqrcode
             dep_qrcode: {
                 expand: true,
@@ -90,6 +100,13 @@ module.exports = function(grunt) {
             pkg_bower: {
                 src: 'package.json',
                 dest: 'bower.json',
+                fields: [
+                    'version'
+                ]
+            },
+            pkg_wpplugin: {
+                src: 'package.json',
+                dest: 'wp-plugin.json',
                 fields: [
                     'version'
                 ]
@@ -311,11 +328,13 @@ module.exports = function(grunt) {
     grunt.registerTask( 'copy-deps', [
         'clean:vendor',
         'copy:dep_metaboxes',
+        'copy:dep_updatechecker',
         'copy:dep_qrcode'
     ]);
     grunt.registerTask( 'update-pkg', [
         'copy:pkg_plugin',
-        'update_json:pkg_bower'
+        'update_json:pkg_bower',
+        'update_json:pkg_wpplugin'
     ]);
     grunt.registerTask( 'build-css', [
         'clean:css',
