@@ -499,7 +499,7 @@ class WPvCardManager {
                     '<textarea readonly>'.htmlspecialchars($hcard).'</textarea>'.
                 '</div>'.
                 '<div class="clear"></div>'.
-                '<img src="'.$qrcode_url.'" style="float:right">'.
+                '<img src="'.$qrcode_url.'?'.get_post_time('U',true,$post,true).'" style="float:right">'.
                 '<p>'.
                     '<strong>'.__('hCard HTML',$this->prefix).'</strong>'.
                     ' <code>[hcard id='.$post->ID.']</code> / <code>[hcard name='.$post->post_name.']</code>'.
