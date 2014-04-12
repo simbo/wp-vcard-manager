@@ -2,7 +2,7 @@
 	"name": "wp-vcard-manager",
 	"slug": "wp-vcard-manager",
 	"download_url": "https://github.com/simbo/wp-vcard-manager/archive/master.zip",
-	"version": "0.0.3",
+	"version": "0.0.4",
 	"author": "Simon Lepel",
 	"sections": {
 		"description": "<p>A WordPress plugin for managing and generating vcards, hcards and corresponding qrcode images.</p><p>Description and Download: <a href=\"https://github.com/simbo/wp-vcard-manager/\" target=\"_blank\">github.com/simbo/wp-vcard-manager/</a></p>"

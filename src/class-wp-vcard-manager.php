@@ -186,7 +186,7 @@ class WPvCardManager {
             'show_in_menu'          => true,
             'show_in_nav_menus'     => false,
             'has_archive'           => false,
-            'menu_position'         => 29,
+            'menu_position'         => 25,
             'menu_icon'             => '',
             'capability_type'       => 'post',
             'supports'              => array('title'),

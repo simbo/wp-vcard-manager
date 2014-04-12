@@ -3,7 +3,7 @@
   Plugin Name: wp-vcard-manager
   Plugin URI:  https://github.com/simbo/wp-vcard-manager
   Description: A WordPress plugin for managing and generating vcards, hcards and corresponding qrcode images.
-  Version:     0.0.3
+  Version:     0.0.4
   Author:      Simon Lepel
   Author URI:  http://simonlepel.de/
   License:     GPL
