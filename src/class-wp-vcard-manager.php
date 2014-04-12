@@ -443,10 +443,21 @@ class WPvCardManager {
                     'name' => __( 'QRCode square size', $this->prefix ),
                     'desc' => __( 'Pixel size of squares/dots in QRCode image', $this->prefix ),
                     'default' => '3',
-                    'id'   => $prefix . '_qrcode_size',
+                    'id'   => $prefix.'_qrcode_size',
                     'type' => 'text_small'
-                )
-            )
+                ),
+                array(
+                    'name' => __( 'vCard Version', $this->prefix ),
+                    'desc' => __( 'which vCard Version to use', $this->prefix ),
+                    'default' => '21',
+                    'id'      => $prefix.'_vcard_version',
+                    'type'    => 'radio_inline',
+                    'options' => array(
+                        '21' => '2.1',
+                        '30' => '3.0',
+                    )
+                ),
+            ),
         );
         return $metaboxes;
     }
@@ -597,9 +608,13 @@ class WPvCardManager {
             // add non-empty data sets
             array_push($group_addr,$addr);
         }
+        // ensure vcard version setting
+        $vcard_version = get_post_meta( $post->ID, '_'.$this->prefix.'_vcard_version',  true );
+        $vcard_version = in_array($vcard_version,array('21','30')) ? $vcard_version : '21';
         // return all values
         return array(
             'fullname'       => $fullname,
+            'vcard_version'  => $vcard_version,
             'givenname'      => get_post_meta( $post->ID, '_'.$this->prefix.'_givenname',      true ),
             'additionalname' => get_post_meta( $post->ID, '_'.$this->prefix.'_additionalname', true ),
             'familyname'     => get_post_meta( $post->ID, '_'.$this->prefix.'_familyname',     true ),
@@ -699,10 +714,26 @@ class WPvCardManager {
     public function get_vcard( $post ) {
         // retrieve vcard data
         extract( $this->get_data($post), EXTR_OVERWRITE );
+        // version differences
+        switch( $vcard_version ) {
+            case '30':
+                $version = '3.0';
+                $filterfunc = 'strtolower';
+                $type_glue = ',';
+                $type_pref = ';TYPE=';
+                break;
+            case '21':
+            default:
+                $version = '2.1';
+                $filterfunc = 'strtoupper';
+                $type_glue = ';';
+                $type_pref = ';';
+                break;
+        }
         // begin vcard content
         $vcard = "BEGIN:VCARD\n".
         // using version 3.0, see http://www.rfcreader.com/#rfc2426
-            "VERSION:3.0\n".
+            "VERSION:$version\n".
         // name
             "N:$familyname;$givenname;$additionalname;$prefix;$suffix\n".
         // full name
@@ -713,39 +744,39 @@ class WPvCardManager {
             $photo_type = strtolower( pathinfo( parse_url( $photo, PHP_URL_PATH ), PATHINFO_EXTENSION ) );
             $photo_type = ( !$photo_type || in_array($photo_type,array('jpg','jpeg')) ) ? 'jpeg' : $photo_type;
             // photo
-            $vcard .= "PHOTO;VALUE=URL;TYPE=$photo_type:$photo\n";
+            $vcard .= 'PHOTO'.($vcard_version!='21'?';VALUE=url':'').$type_pref.$photo_type.':'.$photo."\n";
         }
         // nickname(s)
         $vcard .= ( empty($nick)   ? '' : "NICKNAME:$nick\n" ).
         // url
             ( empty($url)          ? '' : "URL:$url\n" ).
         // pgp key
-            ( empty($pgpkey)       ? '' : "KEY;TYPE=pgp:$pgpkey\n" ).
+            ( empty($pgpkey)       ? '' : 'KEY;'.($vcard_version!='21'?'TYPE=pgp':'PGP').":$pgpkey\n" ).
         // organization and job info
             ( empty($organization) ? '' : "ORG:$organization\n" ).
             ( empty($title)        ? '' : "TITLE:$title\n" ).
             ( empty($role)         ? '' : "ROLE:$role\n" ).
-            ( empty($logo)         ? '' : "LOGO;VALUE=uri:$logo\n" );
+            ( empty($logo)         ? '' : 'LOGO'.($vcard_version!='21'?';VALUE=url':'').":$logo\n" );
         // walk through addresses
         if( !empty($group_addr) ) {
             foreach( $group_addr as $i => $addr ) {
                 // create address data fields as single variables
                 extract( $addr, EXTR_OVERWRITE );
-                // all type values to lowercase
-                $types = array_map('strtolower',$type);
                 // if multiple addressess and this is the first, add "pref"
                 if( $i==0 && count($group_addr)>1 )
                     array_push($types,'pref');
+                // filter all type values
+                $types = array_map($filterfunc,$type);
                 // merge type values
-                $type = !empty($types) ? implode(',',$types) : '';
+                $type = !empty($types) ? implode($type_glue,$types) : '';
                 // address
-                $vcard .= "ADR;TYPE=$type:$pobox;$extended;$street;$locality;$region;$postalcode;$country\n";
+                $vcard .= "ADR$type_pref$type:$pobox;$extended;$street;$locality;$region;$postalcode;$country\n";
                 // address label
                 if( !empty($label) ) {
                     // repplace newlines with escaped version
                     $label = explode("\n",$label);
                     $label = array_map('trim',$label);
-                    $vcard .= "LABEL;TYPE=$type:".implode('\n',$label)."\n";
+                    $vcard .= 'LABEL'.$type_pref.$type.':'.implode('\n',$label)."\n";
                 }
             }
         }
@@ -755,13 +786,13 @@ class WPvCardManager {
                 foreach( $group as $i => $values ) {
                     // ensure type data
                     $types = isset($values['type']) ? $values['type'] : array();
-                    // all types to lowercase
-                    $types = array_map('strtolower',$types);
                     // if multiple items and this is first, add "pref"
                     if( $i==0 && count($group)>1 )
                         array_push($types,'pref');
+                    // filter all type values
+                    $types = array_map($filterfunc,$types);
                     // add value to output
-                    $vcard .= $field.';TYPE='.implode(',',$types).':'.$values['value']."\n";
+                    $vcard .= $field.$type_pref.implode($type_glue,$types).':'.$values['value']."\n";
                 }
             }
         }

@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: wp-vcard-manager\n"
-"POT-Creation-Date: 2014-04-11 14:33+0100\n"
-"PO-Revision-Date: 2014-04-11 14:35+0100\n"
+"POT-Creation-Date: 2014-04-12 18:17+0100\n"
+"PO-Revision-Date: 2014-04-12 18:18+0100\n"
 "Last-Translator: Simon Lepel <simbo@simbo.de>\n"
 "Language-Team: Simon Lepel <simbo@simbo.de>\n"
 "Language: de_DE\n"
@@ -24,8 +24,8 @@ msgstr "Bist du sicher, dass du dieses Element löschen möchtest?"
 msgid "vCards"
 msgstr "vCards"
 
-#: ../src/class-wp-vcard-manager.php:167 ../src/class-wp-vcard-manager.php:484
-#: ../src/class-wp-vcard-manager.php:878
+#: ../src/class-wp-vcard-manager.php:167 ../src/class-wp-vcard-manager.php:495
+#: ../src/class-wp-vcard-manager.php:909
 msgid "vCard"
 msgstr "vCard"
 
@@ -324,39 +324,47 @@ msgstr "QRCode Pixel Größe"
 msgid "Pixel size of squares/dots in QRCode image"
 msgstr "Pixel Größe der Quadrate/Punke im QRCode Bild"
 
-#: ../src/class-wp-vcard-manager.php:493
+#: ../src/class-wp-vcard-manager.php:450
+msgid "vCard Version"
+msgstr "vCard Version"
+
+#: ../src/class-wp-vcard-manager.php:451
+msgid "which vCard Version to use"
+msgstr "welche vCard Version genutzt werden soll"
+
+#: ../src/class-wp-vcard-manager.php:504
 msgid "hCard"
 msgstr "hCard"
 
-#: ../src/class-wp-vcard-manager.php:504
+#: ../src/class-wp-vcard-manager.php:515
 msgid "hCard HTML"
 msgstr "hCard HTML"
 
-#: ../src/class-wp-vcard-manager.php:508
+#: ../src/class-wp-vcard-manager.php:519
 msgid "vCard Link"
 msgstr "vCard Link"
 
-#: ../src/class-wp-vcard-manager.php:512
+#: ../src/class-wp-vcard-manager.php:523
 msgid "vCard URL"
 msgstr "vCard URL"
 
-#: ../src/class-wp-vcard-manager.php:516
+#: ../src/class-wp-vcard-manager.php:527
 msgid "QRCode Image"
 msgstr "QRCode Bild"
 
-#: ../src/class-wp-vcard-manager.php:520
+#: ../src/class-wp-vcard-manager.php:531
 msgid "QRCode URL"
 msgstr "QRCode URL"
 
-#: ../src/class-wp-vcard-manager.php:524
+#: ../src/class-wp-vcard-manager.php:535
 msgid "QRCode white"
 msgstr "QRCode weiß"
 
-#: ../src/class-wp-vcard-manager.php:528
+#: ../src/class-wp-vcard-manager.php:539
 msgid "QRCode black"
 msgstr "QRCode schwarz"
 
-#: ../src/class-wp-vcard-manager.php:691
+#: ../src/class-wp-vcard-manager.php:706
 msgid "PGP Public Key"
 msgstr "PGP Public Key"
 
