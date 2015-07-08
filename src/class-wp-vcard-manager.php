@@ -52,6 +52,10 @@ class WPvCardManager {
         add_filter( 'cmb_validate_vcard_attachments', array($this,'metabox_validate_attachments') );
         // hook metabox setups
         add_filter( 'cmb_meta_boxes', array($this,'register_metaboxes') );
+		
+		add_action( 'admin_menu', array( $this, 'add_plugin_page' ) );
+		add_action( 'admin_init', array( $this, 'page_init' ) );
+		
         // hook metabox initialization
         add_action( 'init', array($this,'initialize_metaboxes'), 9999 );
         // hook into save_post
@@ -67,6 +71,90 @@ class WPvCardManager {
         add_shortcode( 'qrcode_img', array($this,'shortcode_qrcode_img') );
     }
 
+	/**
+     * Add options page
+     */
+    public function add_plugin_page()
+    {
+        // This page will be under "Settings"
+        add_options_page(
+            'Settings Admin', 
+            'vCard settings', 
+            'manage_options', 
+            'vcard-setting-admin', 
+            array( $this, 'create_admin_page' )
+        );
+    }
+	
+	
+	 /**
+     * Options page callback
+     */
+    public function create_admin_page()
+    {
+        // Set class property
+        $this->options = get_option( 'vcards_option' );
+        ?>
+        <div class="wrap">
+            <h2>vCards Settings</h2>           
+            <form method="post" action="options.php">
+            <?php
+                // This prints out all hidden setting fields
+                settings_fields( 'my_option_group' );   
+                do_settings_sections( 'vcard-setting-admin' );
+                submit_button(); 
+            ?>
+            </form>
+        </div>
+        <?php
+    }
+	
+	/**
+     * Register and add settings
+     */
+    public function page_init()
+    {        
+         register_setting(
+            'my_option_group', // Option group
+            'vcards_option' // Option name
+        );
+
+        add_settings_section(
+            'setting_section_id', // ID
+            'General', // Title
+            array( $this, 'print_section_info' ), // Callback
+            'vcard-setting-admin' // Page
+        );  
+
+        add_settings_field(
+            'embed_images', 
+            'Embed images in VCF files', 
+            array( $this, 'embed_images_callback' ),
+            'vcard-setting-admin', 
+            'setting_section_id'
+        );
+    }
+
+	/** 
+     * Get the settings option array and print one of its values
+     */
+    public function embed_images_callback()
+    {
+        printf(
+            '<input type="checkbox" id="embed_images" name="vcards_option[embed_images]" value="true" %s/>',
+            isset( $this->options['embed_images'] ) ? ' checked="checked"' : ''
+        );
+    }
+	
+	/** 
+     * Print the Section text
+     */
+    public function print_section_info()
+    {
+        print 'Enter your settings below:';
+    }
+	
+	
     // on plugin activation
     public function activate() {
     }
@@ -466,6 +554,11 @@ class WPvCardManager {
     public function initialize_metaboxes() {
         if( !class_exists('cmb_Meta_Box') )
             require_once( $this->path.'vendor/metabox/init.php' );
+		
+		
+		register_setting( 'myoption-group', 'new_option_name' );
+  		register_setting( 'myoption-group', 'some_other_option' );
+  		register_setting( 'myoption-group', 'option_etc' );		
     }
 
     // contents of the "Output" metabox
@@ -475,8 +568,9 @@ class WPvCardManager {
         echo '<p class="cmb_metabox_description">'.$field['description'].'</p>';
         // if a postname is set / the post has been saved at least once
         if( !empty($post->post_name) ) {
-            // generate vcard data
-            $vcard = $this->get_vcard($post);
+			
+			$options = get_option( 'vcards_option' );
+			
             // generate hcard html
             $hcard = $this->get_hcard($post);
             // base url
@@ -490,7 +584,30 @@ class WPvCardManager {
             // qrcode img url, only black parts visible
             $qrcodeb_url = $url.'_black.png';
             // html output
-            echo '<div class="vcard output">'.
+			if (isset($options['embed_images']) && $options['embed_images']) {
+                echo '<div class="vcard output">'.
+                    '<span class="output-title">'.
+                        __('vCard',$this->prefix).
+                        '<span class="spec">'.
+                            '(<a href="http://www.rfcreader.com/#rfc2426">RFC</a>)'.
+                        '</span>'.
+                    '</span>'.
+                    'vCard is not displayed here when images are embedded.'.
+                '</div>'.
+                '<div class="hcard output">'.
+                    '<span class="output-title">'.
+                        __('hCard',$this->prefix).
+                        '<span class="spec">'.
+                            '(<a href="http://microformats.org/wiki/hcard">hcard</a>'.
+                            ' / <a href="http://microformats.org/wiki/h-card">h-card</a>)'.
+                        '</span>'.
+                    '</span>'.
+                    '<textarea readonly>'.htmlspecialchars($hcard).'</textarea>'.
+                '</div>';
+			} else {
+                // generate vcard data
+                $vcard = $this->get_vcard($post);
+                echo '<div class="vcard output">'.
                     '<span class="output-title">'.
                         __('vCard',$this->prefix).
                         '<span class="spec">'.
@@ -508,8 +625,10 @@ class WPvCardManager {
                         '</span>'.
                     '</span>'.
                     '<textarea readonly>'.htmlspecialchars($hcard).'</textarea>'.
-                '</div>'.
-                '<div class="clear"></div>'.
+                '</div>';
+			}
+            
+                echo '<div class="clear"></div>'.
                 '<img src="'.$qrcode_url.'?'.get_post_time('U',true,$post,true).'" style="float:right">'.
                 '<p>'.
                     '<strong>'.__('hCard HTML',$this->prefix).'</strong>'.
@@ -712,6 +831,7 @@ class WPvCardManager {
 
     // generate vcard content
     public function get_vcard( $post ) {
+		$options = get_option( 'vcards_option' );
         // retrieve vcard data
         extract( $this->get_data($post), EXTR_OVERWRITE );
         // version differences
@@ -744,7 +864,11 @@ class WPvCardManager {
             $photo_type = strtolower( pathinfo( parse_url( $photo, PHP_URL_PATH ), PATHINFO_EXTENSION ) );
             $photo_type = ( !$photo_type || in_array($photo_type,array('jpg','jpeg')) ) ? 'jpeg' : $photo_type;
             // photo
-            $vcard .= 'PHOTO'.($vcard_version!='21'?';VALUE=url':'').$type_pref.$photo_type.':'.$photo."\n";
+			if (isset($options['embed_images']) && $options['embed_images']) {
+				$vcard .= 'PHOTO;ENCODING=b;TYPE='.$photo_type.':'.base64_encode(file_get_contents($photo))."\n";
+			} else {
+            	$vcard .= 'PHOTO'.($vcard_version!='21'?';VALUE=url':'').$type_pref.$photo_type.':'.$photo."\n";
+			}
         }
         // nickname(s)
         $vcard .= ( empty($nick)   ? '' : "NICKNAME:$nick\n" ).
@@ -757,6 +881,19 @@ class WPvCardManager {
             ( empty($title)        ? '' : "TITLE:$title\n" ).
             ( empty($role)         ? '' : "ROLE:$role\n" ).
             ( empty($logo)         ? '' : 'LOGO'.($vcard_version!='21'?';VALUE=url':'').":$logo\n" );
+		
+		if( !empty($logo) ) {
+            // try to find photo image type, use 'jpeg' as default
+            $logo_type = strtolower( pathinfo( parse_url( $logo, PHP_URL_PATH ), PATHINFO_EXTENSION ) );
+            $logo_type = ( !$logo_type || in_array($logo_type,array('jpg','jpeg')) ) ? 'jpeg' : $logo_type;
+            // photo
+			if (isset($options['embed_images']) && $options['embed_images']) {
+				$vcard .= 'LOGO;ENCODING=b;TYPE='.$logo_type.':'.base64_encode(file_get_contents($logo))."\n";
+			} else {
+            	$vcard .= 'LOGO'.($vcard_version!='21'?';VALUE=url':'').":$logo\n";
+			}
+        }
+		
         // walk through addresses
         if( !empty($group_addr) ) {
             foreach( $group_addr as $i => $addr ) {
