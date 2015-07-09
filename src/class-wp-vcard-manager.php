@@ -52,6 +52,10 @@ class WPvCardManager {
         add_filter( 'cmb_validate_vcard_attachments', array($this,'metabox_validate_attachments') );
         // hook metabox setups
         add_filter( 'cmb_meta_boxes', array($this,'register_metaboxes') );
+		
+		add_action( 'admin_menu', array( $this, 'add_plugin_page' ) );
+		add_action( 'admin_init', array( $this, 'page_init' ) );
+		
         // hook metabox initialization
         add_action( 'init', array($this,'initialize_metaboxes'), 9999 );
         // hook into save_post
@@ -67,6 +71,90 @@ class WPvCardManager {
         add_shortcode( 'qrcode_img', array($this,'shortcode_qrcode_img') );
     }
 
+	/**
+     * Add options page
+     */
+    public function add_plugin_page()
+    {
+        // This page will be under "Settings"
+        add_options_page(
+            'Settings Admin', 
+            'vCard settings', 
+            'manage_options', 
+            'vcard-setting-admin', 
+            array( $this, 'create_admin_page' )
+        );
+    }
+	
+	
+	 /**
+     * Options page callback
+     */
+    public function create_admin_page()
+    {
+        // Set class property
+        $this->options = get_option( 'vcards_option' );
+        ?>
+        <div class="wrap">
+            <h2>vCards Settings</h2>           
+            <form method="post" action="options.php">
+            <?php
+                // This prints out all hidden setting fields
+                settings_fields( 'my_option_group' );   
+                do_settings_sections( 'vcard-setting-admin' );
+                submit_button(); 
+            ?>
+            </form>
+        </div>
+        <?php
+    }
+	
+	/**
+     * Register and add settings
+     */
+    public function page_init()
+    {        
+         register_setting(
+            'my_option_group', // Option group
+            'vcards_option' // Option name
+        );
+
+        add_settings_section(
+            'setting_section_id', // ID
+            'General', // Title
+            array( $this, 'print_section_info' ), // Callback
+            'vcard-setting-admin' // Page
+        );  
+
+        add_settings_field(
+            'embed_images', 
+            'Embed images in VCF files', 
+            array( $this, 'embed_images_callback' ),
+            'vcard-setting-admin', 
+            'setting_section_id'
+        );
+    }
+
+	/** 
+     * Get the settings option array and print one of its values
+     */
+    public function embed_images_callback()
+    {
+        printf(
+            '<input type="checkbox" id="embed_images" name="vcards_option[embed_images]" value="true" %s/>',
+            isset( $this->options['embed_images'] ) ? ' checked="checked"' : ''
+        );
+    }
+	
+	/** 
+     * Print the Section text
+     */
+    public function print_section_info()
+    {
+        print 'Enter your settings below:';
+    }
+	
+	
     // on plugin activation
     public function activate() {
     }
@@ -91,15 +179,17 @@ class WPvCardManager {
 
     // hook into save_post
     public function save_post( $post_id ) {
-        $post = get_post($post_id);
+		$post = get_post($post_id);
         // if post is a vcard and not in revision or autosave mode
-        if( $post->post_type=='vcard' && !wp_is_post_revision($post_id) && !wp_is_post_autosave($post_id) ) {
+        if( $post->post_type=='vcard' && !wp_is_post_autosave($post_id) ) { //  && !wp_is_post_revision($post_id)
+			$options = get_option( 'vcards_option' );
             // if a post_name is given
+            $vcfFilename = $post->post_name.'-'.$post_id;
             if( !empty($post->post_name) ) {
                 // base filename by post_name
-                $filename = $this->upload_dir.'/'.$post->post_name;
+                $filename = $this->upload_dir.'/'.$vcfFilename;
                 // filenames to delete
-                $rmfiles = array('.vcf','.png','_black.png','_white.png');
+                $rmfiles = array('.vcf','.png');
                 // try to delete existing files
                 foreach( $rmfiles as $rmfile ) {
                     if( is_file($filename.$rmfile) ) {
@@ -123,38 +213,23 @@ class WPvCardManager {
             }
             // if a post name is given
             if( !empty($post->post_name) ) {
+	            $vcfFilename = $post->post_name.'-'.$post_id;
                 // new base filename by post_name
-                $filename = $this->upload_dir.'/'.$post->post_name;
+                $filename = $this->upload_dir.'/'.$vcfFilename;
                 // check writable state of upload dir, create if necessary
                 if( wp_mkdir_p($this->upload_dir) && is_writable($this->upload_dir) ) {
                     // get vcard formatted data
                     $vcard_text = $this->get_vcard($post);
                     // write vcard to file
                     file_put_contents($filename.'.vcf',$vcard_text);
-                    // get qrcode size
-                    $qrcode_size = get_post_meta( $post->ID, '_'.$this->prefix.'_qrcode_size', true );
-                    $qrcode_size = intval( empty($qrcode_size) ? 3 : $qrcode_size );
-                    $qrcode_size = min(10,max(1,$qrcode_size));
-                    // write qrcode image file from vcard data
-                    QRcode::png( $vcard_text, $filename.'.png', QR_ECLEVEL_L, $qrcode_size, 0 );
-                    // read qrcode image
-                    if( $img = imagecreatefrompng($filename.'.png') ) {
-                        // get dimensions
-                        $img_width = imagesx($img);
-                        $img_height = imagesy($img);
-                        // create a image version where only white parts are visible
-                        $white_img = imagecreatetruecolor($img_width,$img_height);
-                        $white_img_transparency = imagecolorallocate($white_img, 0, 0, 0);
-                        imagecolortransparent($white_img, $white_img_transparency);
-                        imagecopy($white_img, $img, 0, 0, 0, 0, $img_width, $img_height);
-                        imagepng($white_img, $filename.'_white.png',9);
-                        // create a image version where only black parts are visible
-                        $black_img = imagecreatetruecolor($img_width,$img_height);
-                        $black_img_transparency = imagecolorallocate($black_img, 255, 255, 255);
-                        imagecolortransparent($black_img, $black_img_transparency);
-                        imagecopy($black_img, $img, 0, 0, 0, 0, $img_width, $img_height);
-                        imagepng($black_img, $filename.'_black.png',9);
-                    }
+					$vcardURL = $this->upload_url.'/'.$vcfFilename.'.vcf';
+					
+					// get qrcode size
+					$qrcode_size = get_post_meta( $post->ID, '_'.$this->prefix.'_qrcode_size', true );
+					$qrcode_size = intval( empty($qrcode_size) ? 3 : $qrcode_size );
+					$qrcode_size = min(10,max(1,$qrcode_size));
+					// write qrcode image file from vcard URL
+					QRcode::png( $vcardURL, $filename.'.png', QR_ECLEVEL_L, $qrcode_size, 0 );
                 }
             }
         }
@@ -206,31 +281,31 @@ class WPvCardManager {
             'show_names' => true,
             'cmb_styles' => true,
             'fields'     => array(
-                array(
+                /*array(
                     'name' => __( 'Full Name', $this->prefix ),
                     'desc' => __( 'The person\'s full name, defaults to vCard title', $this->prefix ),
                     'id'   => $prefix.'_fullname',
                     'type' => 'text',
-                ),
+                ),*/
                 array(
                     'name' => __( 'Given Name', $this->prefix ),
                     'desc' => __( 'The person\'s first name', $this->prefix ),
                     'id'   => $prefix.'_givenname',
                     'type' => 'text',
                 ),
-                array(
+                /*array(
                     'name' => __( 'Additional Name', $this->prefix ),
                     'desc' => __( 'The person\'s middle or second name', $this->prefix ),
                     'id'   => $prefix.'_additionalname',
                     'type' => 'text',
-                ),
+                ),*/
                 array(
                     'name' => __( 'Family Name', $this->prefix ),
                     'desc' => __( 'The person\'s last name', $this->prefix ),
                     'id'   => $prefix.'_familyname',
                     'type' => 'text',
                 ),
-                array(
+                /*array(
                     'name' => __( 'Prefix', $this->prefix ),
                     'desc' => __( 'Honorific prefixes', $this->prefix ),
                     'id'   => $prefix.'_prefix',
@@ -241,7 +316,7 @@ class WPvCardManager {
                     'desc' => __( 'Honorific suffixes', $this->prefix ),
                     'id'   => $prefix.'_suffix',
                     'type' => 'text',
-                ),
+                ),*/
                 array(
                     'name' => __( 'Nickname', $this->prefix ),
                     'desc' => __( 'The person\'s nickname or nicknames, comma-separated', $this->prefix ),
@@ -278,24 +353,24 @@ class WPvCardManager {
                     'id'   => $prefix.'_title',
                     'type' => 'text',
                 ),
-                array(
+                /*array(
                     'name' => __( 'Role', $this->prefix ),
                     'desc' => __( 'The person\'s role within the organization', $this->prefix ),
                     'id'   => $prefix.'_role',
                     'type' => 'text',
-                ),
+                ),*/
                 array(
                     'name' => __( 'Logo', $this->prefix ),
                     'desc' => __( 'The organization logo', $this->prefix ),
                     'id'   => $prefix.'_logo',
                     'type' => 'file',
                 ),
-                array(
+                /*array(
                     'name' => __( 'Source', $this->prefix ),
                     'desc' => __( 'Source URL to vcard, defaults to vCard URL in uploads folder', $this->prefix ),
                     'id'   => $prefix.'_source',
                     'type' => 'text',
-                ),
+                ),*/
                 array(
                     'id'          => $prefix.'_group_email',
                     'type'        => 'group',
@@ -442,7 +517,7 @@ class WPvCardManager {
                 array(
                     'name' => __( 'QRCode square size', $this->prefix ),
                     'desc' => __( 'Pixel size of squares/dots in QRCode image', $this->prefix ),
-                    'default' => '3',
+                    'default' => '5',
                     'id'   => $prefix.'_qrcode_size',
                     'type' => 'text_small'
                 ),
@@ -475,71 +550,50 @@ class WPvCardManager {
         echo '<p class="cmb_metabox_description">'.$field['description'].'</p>';
         // if a postname is set / the post has been saved at least once
         if( !empty($post->post_name) ) {
-            // generate vcard data
-            $vcard = $this->get_vcard($post);
+			
+			$options = get_option( 'vcards_option' );
+			
             // generate hcard html
             $hcard = $this->get_hcard($post);
             // base url
-            $url = $this->upload_url.'/'.$post->post_name;
+            $url = $this->upload_url.'/'.$post->post_name.'-'.$post->ID;
             // vcard file url
             $vcard_url = $url.'.vcf';
             // qrcode img url
             $qrcode_url = $url.'.png';
-            // qrcode img url, only white parts visible
-            $qrcodew_url = $url.'_white.png';
-            // qrcode img url, only black parts visible
-            $qrcodeb_url = $url.'_black.png';
             // html output
-            echo '<div class="vcard output">'.
-                    '<span class="output-title">'.
-                        __('vCard',$this->prefix).
-                        '<span class="spec">'.
-                            '(<a href="http://www.rfcreader.com/#rfc2426">RFC</a>)'.
-                        '</span>'.
-                    '</span>'.
-                    '<textarea readonly>'.$vcard.'</textarea>'.
-                '</div>'.
-                '<div class="hcard output">'.
-                    '<span class="output-title">'.
-                        __('hCard',$this->prefix).
-                        '<span class="spec">'.
-                            '(<a href="http://microformats.org/wiki/hcard">hcard</a>'.
-                            ' / <a href="http://microformats.org/wiki/h-card">h-card</a>)'.
-                        '</span>'.
-                    '</span>'.
-                    '<textarea readonly>'.htmlspecialchars($hcard).'</textarea>'.
-                '</div>'.
-                '<div class="clear"></div>'.
-                '<img src="'.$qrcode_url.'?'.get_post_time('U',true,$post,true).'" style="float:right">'.
-                '<p>'.
-                    '<strong>'.__('hCard HTML',$this->prefix).'</strong>'.
-                    ' <code>[hcard id='.$post->ID.']</code> / <code>[hcard name='.$post->post_name.']</code>'.
-                '</p><p>'.
-                    '<a href="'.$vcard_url.'" target="_blank">'.
-                        '<strong>'.__('vCard Link',$this->prefix).'</strong>'.
-                    '</a> <code>[vcard_link id='.$post->ID.']&hellip;[/vcard_link]</code> / <code>[vcard_link name='.$post->post_name.']&hellip;[/vcard_link]</code>'.
-                '</p><p>'.
-                    '<a href="'.$vcard_url.'" target="_blank">'.
-                        '<strong>'.__('vCard URL',$this->prefix).'</strong>'.
-                    '</a> <code>[vcard_url id='.$post->ID.']</code> / <code>[vcard_url name='.$post->post_name.']</code>'.
-                '</p><p>'.
-                    '<a href="'.$qrcode_url.'" target="_blank">'.
-                       '<strong>'.__('QRCode Image',$this->prefix).'</strong>'.
-                    '</a> <code>[qrcode_img id='.$post->ID.']</code> / <code>[qrcode_img name='.$post->post_name.']</code>'.
-                '</p><p>'.
-                    '<a href="'.$qrcode_url.'" target="_blank">'.
-                       '<strong>'.__('QRCode URL',$this->prefix).'</strong>'.
-                    '</a> <code>[qrcode_url id='.$post->ID.']</code> / <code>[qrcode_url name='.$post->post_name.']</code>'.
-                '</p><p>'.
-                    '<a href="'.$qrcodew_url.'" target="_blank">'.
-                        '<strong>'.__('QRCode white',$this->prefix).'</strong>'.
-                    '</a> <code>[qrcode_img &hellip; alt=white]</code> / <code>[qrcode_url &hellip; alt=white]</code>'.
-                '</p><p>'.
-                    '<a href="'.$qrcodeb_url.'" target="_blank">'.
-                        '<strong>'.__('QRCode black',$this->prefix).'</strong>'.
-                    '</a> <code>[qrcode_img &hellip; alt=black]</code> / <code>[qrcode_url &hellip; alt=black]</code>'.
-                '</p>'.
-                '<div class="clear"></div>';
+
+            // generate vcard data
+            $vcard = $this->get_vcard($post);
+            
+            echo '<div class="clear"></div>';
+            if ($post->post_name === 'brouillon-auto') {
+	            echo '<p>Vous devez <strong>enregistrer</strong> et <strong>publier</strong> la vCard avant que le QR code ne soit affiché.</p>';
+	            
+            } else {
+	            echo '<img src="'.$qrcode_url.'?'.get_post_time('U',true,$post,true).'" style="float:right">'.
+	                '<p>'.
+	                    '<strong>'.__('hCard HTML',$this->prefix).'</strong>'.
+	                    ' <code>[hcard id='.$post->ID.']</code> / <code>[hcard name='.$post->post_name.']</code>'.
+	                '</p><p>'.
+	                    '<a href="'.$vcard_url.'" target="_blank">'.
+	                        '<strong>'.__('vCard Link',$this->prefix).'</strong>'.
+	                    '</a> <code>[vcard_link id='.$post->ID.']&hellip;[/vcard_link]</code> / <code>[vcard_link name='.$post->post_name.']&hellip;[/vcard_link]</code>'.
+	                '</p><p>'.
+	                    '<a href="'.$vcard_url.'" target="_blank">'.
+	                        '<strong>'.__('vCard URL',$this->prefix).'</strong>'.
+	                    '</a> <code>[vcard_url id='.$post->ID.']</code> / <code>[vcard_url name='.$post->post_name.']</code>'.
+	                '</p><p>'.
+	                    '<a href="'.$qrcode_url.'" target="_blank">'.
+	                       '<strong>'.__('QRCode Image',$this->prefix).'</strong>'.
+	                    '</a> <code>[qrcode_img id='.$post->ID.']</code> / <code>[qrcode_img name='.$post->post_name.']</code>'.
+	                '</p><p>'.
+	                    '<a href="'.$qrcode_url.'" target="_blank">'.
+	                       '<strong>'.__('QRCode URL',$this->prefix).'</strong>'.
+	                    '</a> <code>[qrcode_url id='.$post->ID.']</code> / <code>[qrcode_url name='.$post->post_name.']</code>'.
+	                '</p>'.
+	                '<div class="clear"></div>';
+            }
         }
     }
 
@@ -712,6 +766,7 @@ class WPvCardManager {
 
     // generate vcard content
     public function get_vcard( $post ) {
+		$options = get_option( 'vcards_option' );
         // retrieve vcard data
         extract( $this->get_data($post), EXTR_OVERWRITE );
         // version differences
@@ -735,28 +790,45 @@ class WPvCardManager {
         // using version 3.0, see http://www.rfcreader.com/#rfc2426
             "VERSION:$version\n".
         // name
-            "N:$familyname;$givenname;$additionalname;$prefix;$suffix\n".
+            "N;CHARSET=utf-8:$familyname;$givenname;$additionalname;$prefix;$suffix\n".
         // full name
-            "FN:$fullname\n";
+            "FN;CHARSET=utf-8:$fullname\n";
         // if a photo is set
         if( !empty($photo) ) {
             // try to find photo image type, use 'jpeg' as default
             $photo_type = strtolower( pathinfo( parse_url( $photo, PHP_URL_PATH ), PATHINFO_EXTENSION ) );
             $photo_type = ( !$photo_type || in_array($photo_type,array('jpg','jpeg')) ) ? 'jpeg' : $photo_type;
             // photo
-            $vcard .= 'PHOTO'.($vcard_version!='21'?';VALUE=url':'').$type_pref.$photo_type.':'.$photo."\n";
+			if (isset($options['embed_images']) && $options['embed_images']) {
+				$vcard .= 'PHOTO;ENCODING=b;TYPE='.$photo_type.':'.base64_encode(file_get_contents($photo))."\n";
+			} else {
+            	$vcard .= 'PHOTO'.($vcard_version!='21'?';VALUE=url':'').$type_pref.$photo_type.':'.$photo."\n";
+			}
         }
         // nickname(s)
-        $vcard .= ( empty($nick)   ? '' : "NICKNAME:$nick\n" ).
+        $vcard .= ( empty($nick)   ? '' : "NICKNAME;CHARSET=utf-8:$nick\n" ).
         // url
             ( empty($url)          ? '' : "URL:$url\n" ).
         // pgp key
             ( empty($pgpkey)       ? '' : 'KEY;'.($vcard_version!='21'?'TYPE=pgp':'PGP').":$pgpkey\n" ).
         // organization and job info
-            ( empty($organization) ? '' : "ORG:$organization\n" ).
-            ( empty($title)        ? '' : "TITLE:$title\n" ).
-            ( empty($role)         ? '' : "ROLE:$role\n" ).
+            ( empty($organization) ? '' : "ORG;CHARSET=utf-8:$organization\n" ).
+            ( empty($title)        ? '' : "TITLE;CHARSET=utf-8:$title\n" ).
+            ( empty($role)         ? '' : "ROLE;CHARSET=utf-8:$role\n" ).
             ( empty($logo)         ? '' : 'LOGO'.($vcard_version!='21'?';VALUE=url':'').":$logo\n" );
+		
+		if( !empty($logo) ) {
+            // try to find photo image type, use 'jpeg' as default
+            $logo_type = strtolower( pathinfo( parse_url( $logo, PHP_URL_PATH ), PATHINFO_EXTENSION ) );
+            $logo_type = ( !$logo_type || in_array($logo_type,array('jpg','jpeg')) ) ? 'jpeg' : $logo_type;
+            // photo
+			if (isset($options['embed_images']) && $options['embed_images']) {
+				$vcard .= 'LOGO;ENCODING=b;TYPE='.$logo_type.':'.base64_encode(file_get_contents($logo))."\n";
+			} else {
+            	$vcard .= 'LOGO'.($vcard_version!='21'?';VALUE=url':'').":$logo\n";
+			}
+        }
+		
         // walk through addresses
         if( !empty($group_addr) ) {
             foreach( $group_addr as $i => $addr ) {
@@ -796,8 +868,6 @@ class WPvCardManager {
                 }
             }
         }
-        // source
-        $vcard .= "SOURCE:".( empty($source) ? $this->upload_url.'/'.$post->post_name.'.vcf' : $source )."\n";
         // revision date
         $rev = get_post_time('Y-m-d', true, $post, true);
         $vcard .= "REV:$rev\n".
